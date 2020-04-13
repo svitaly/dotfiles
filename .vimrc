@@ -39,6 +39,7 @@ call plug#end()
 
 " === Colorscheme Configuration ===
 syntax on                                 "Turn on syntax highlight
+set termguicolors
 colorscheme OceanicNext                   "Turn on OceanicNext theme installed by plugin
 
 " === LightLine configuration  ===
