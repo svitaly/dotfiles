@@ -46,7 +46,7 @@ colors:
   # Colors the cursor will use if `custom_cursor_colors` is true
   cursor:
     text: '#1b2b34'
-    cursor: '#ffffff'
+    cursor: '#FFC238'
 
   # Normal colors
   normal:
