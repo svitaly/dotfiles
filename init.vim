@@ -2,48 +2,74 @@
 call plug#begin(stdpath('data') . '/plugged')
     Plug 'mhartington/oceanic-next'
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    Plug 'sheerun/vim-polyglot'
     Plug 'jiangmiao/auto-pairs'
     Plug 'itchyny/lightline.vim'
+    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+    Plug 'junegunn/fzf.vim'
+    Plug 'Yggdroot/indentLine'
+    Plug 'tpope/vim-surround'
+    Plug 'ap/vim-css-color'
 call plug#end()
 
 " LightLine config
+function! CocCurrentFunction()
+    return get(b:, 'coc_current_function', '')
+endfunction
+
 let g:lightline = {
-    \ 'colorscheme': 'wombat',
-    \ 'active': {
-    \   'left': [ [ 'mode', 'paste' ],
-    \             [ 'cocstatus', 'readonly', 'filename', 'modified' ] ]
-    \ },
-    \ 'component_function': {
-    \   'cocstatus': 'coc#status'
-    \ },
-    \ }
+      \ 'colorscheme': 'wombat',
+      \ 'active': {
+      \   'left': [ [ 'mode', 'paste' ],
+      \             [ 'cocstatus', 'currentfunction', 'readonly', 'filename', 'modified' ] ]
+      \ },
+      \ 'component_function': {
+      \   'cocstatus': 'coc#status',
+      \   'currentfunction': 'CocCurrentFunction'
+      \ },
+      \ }
 
 " Declare ~CoC extensions 
 let g:coc_global_extensions = [
-  \ 'coc-tsserver',
-  \ 'coc-css'
-  \ ]
+   \ 'coc-tsserver',
+   \ 'coc-css',
+   \ 'coc-html',
+   \ 'coc-emmet'
+   \ ]
 
-" Set ColorScheme
+" Set ColorSchem
 set termguicolors
 colorscheme OceanicNext
 
 " Set relative numbers
 set rnu nu
+" Set universal clipboard
+set clipboard+=unnamedplus
 " Set tabs and their expansion
 set expandtab
 set smarttab
-set shiftwidth=4
-set softtabstop=4
-set tabstop=4
-
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
+" Vertically center document when entering insert mode
+" autocmd InsertEnter * norm zz
 " Set encoding
 set encoding=utf-8
 " Show Commands entered from keyboard
 set showcmd
+" Ignore casesensetive search
+set ignorecase
+" Enable mouse
+set mouse=a
+" Enablle suggestions 
+set wildmode=longest,list,full
+"Making sure backspace works
+set backspace=indent,eol,start
+" Turn off autocomment
+au FileType * set fo-=c fo-=r fo-=o
 
 " Set unprinted characters
-set list
+" set list
 "How to show unprinted chars
 set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:¬,precedes:«,extends:» 
 
@@ -197,3 +223,11 @@ nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
 let mapleader = ','
 " Toggle unprinted characters
 noremap <leader>m :set invlist<CR>
+" Enable and disable autocomment
+map <leader>c :setlocal formatoptions-=cro<CR>
+map <leader>C :setlocal formatoptions=cro<CR>
+
+" FZF Mappings 
+" map <C-f> <Esc><Esc>:Files!<CR>
+" inoremap <C-f> <Esc><Esc>:BLines!<CR>
+" map <C-g> <Esc><Esc>:BCommits!<CR>
