@@ -1,4 +1,7 @@
+" === === === ===
 " === PLUGINS ===
+" === === === ===
+
 call plug#begin(stdpath('data') . '/plugged')
     Plug 'mhartington/oceanic-next'
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -34,15 +37,21 @@ let g:coc_global_extensions = [
    \ 'coc-tsserver',
    \ 'coc-css',
    \ 'coc-html',
-   \ 'coc-emmet'
+   \ 'coc-emmet',
+   \ 'coc-json',
+   \ 'coc-prettier'
    \ ]
 
-" Set ColorSchem
+" Set ColorScheme
 set termguicolors
 colorscheme OceanicNext
 
+" === === === === === === ===
+" ===  GENERAL  SETTINGS  ===
+" === === === === === === ===
+
 " Set relative numbers
-set rnu nu
+set nu
 " Set universal clipboard
 set clipboard+=unnamedplus
 " Set tabs and their expansion
@@ -67,6 +76,10 @@ set wildmode=longest,list,full
 set backspace=indent,eol,start
 " Turn off autocomment
 au FileType * set fo-=c fo-=r fo-=o
+" Don't dispay mode in command line (airilne already shows it)
+set noshowmode
+" Don't wrap lines (use 'set wrap' to wrap lines)
+set nowrap
 
 " Set unprinted characters
 " set list
@@ -76,7 +89,26 @@ set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:¬,precedes:«,extends:�
 " Highlight search in realtime
 set incsearch
 
-" === CoC Config ===
+" Open new split panes to right and below
+set splitright
+set splitbelow
+" use alt+hjkl to move between split/vsplit panels
+tnoremap <A-h> <C-\><C-n><C-w>h
+tnoremap <A-j> <C-\><C-n><C-w>j
+tnoremap <A-k> <C-\><C-n><C-w>k
+tnoremap <A-l> <C-\><C-n><C-w>l
+nnoremap <A-h> <C-w>h
+nnoremap <A-j> <C-w>j
+nnoremap <A-k> <C-w>k
+nnoremap <A-l> <C-w>l
+
+" Enable spellcheck for markdown files
+autocmd BufRead,BufNewFile *.md setlocal spell
+
+" === === === === === ===
+" === CoC.nvim Config ===
+" === === === === === ===
+
 " TextEdit might fail if hidden is not set.
 set hidden
 
@@ -218,7 +250,10 @@ nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
 
 
-" === MAPPINGS ===
+" === === === === === ===
+" ===  KEY  MAPPINGS  ===
+" === === === === === ===
+
 " Set LEADER to ','
 let mapleader = ','
 " Toggle unprinted characters
@@ -228,6 +263,11 @@ map <leader>c :setlocal formatoptions-=cro<CR>
 map <leader>C :setlocal formatoptions=cro<CR>
 
 " FZF Mappings 
-" map <C-f> <Esc><Esc>:Files!<CR>
+nnoremap <C-p> <Esc><Esc>:FZF<CR>
+let g:fzf_action = {
+  \ 'ctrl-t': 'tab split',
+  \ 'ctrl-s': 'split',
+  \ 'ctrl-v': 'vsplit'
+  \}
 " inoremap <C-f> <Esc><Esc>:BLines!<CR>
 " map <C-g> <Esc><Esc>:BCommits!<CR>
