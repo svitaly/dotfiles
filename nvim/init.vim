@@ -3,44 +3,46 @@
 " === === === ===
 
 call plug#begin(stdpath('data') . '/plugged')
-    Plug 'mhartington/oceanic-next'
-    Plug 'neoclide/coc.nvim', {'branch': 'release'}
-    Plug 'sheerun/vim-polyglot'
-    Plug 'jiangmiao/auto-pairs'
-    Plug 'itchyny/lightline.vim'
-    Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-    Plug 'junegunn/fzf.vim'
-    Plug 'Yggdroot/indentLine'
-    Plug 'tpope/vim-surround'
-    Plug 'ap/vim-css-color'
+  Plug 'mhartington/oceanic-next'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'sheerun/vim-polyglot'
+  Plug 'itchyny/lightline.vim'
+  Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+  Plug 'junegunn/fzf.vim'
+  Plug 'Yggdroot/indentLine'
+  Plug 'tpope/vim-surround'
+  Plug 'ap/vim-css-color'
+  "Plug 'ThePrimeagen/vim-be-good' " Does not work 
 call plug#end()
 
 " LightLine config
 function! CocCurrentFunction()
-    return get(b:, 'coc_current_function', '')
+  return get(b:, 'coc_current_function', '')
 endfunction
 
 let g:lightline = {
-      \ 'colorscheme': 'wombat',
-      \ 'active': {
-      \   'left': [ [ 'mode', 'paste' ],
-      \             [ 'cocstatus', 'currentfunction', 'readonly', 'filename', 'modified' ] ]
-      \ },
-      \ 'component_function': {
-      \   'cocstatus': 'coc#status',
-      \   'currentfunction': 'CocCurrentFunction'
-      \ },
-      \ }
+  \ 'colorscheme': 'wombat',
+  \ 'active': {
+  \   'left': [ [ 'mode', 'paste' ],
+  \             [ 'cocstatus', 'currentfunction', 'readonly', 'filename', 'modified' ] ]
+  \ },
+  \ 'component_function': {
+  \   'cocstatus': 'coc#status',
+  \   'currentfunction': 'CocCurrentFunction'
+  \ },
+  \ }
 
 " Declare ~CoC extensions 
 let g:coc_global_extensions = [
-   \ 'coc-tsserver',
-   \ 'coc-css',
-   \ 'coc-html',
-   \ 'coc-emmet',
-   \ 'coc-json',
-   \ 'coc-prettier'
-   \ ]
+  \ 'coc-tsserver',
+  \ 'coc-css',
+  \ 'coc-html',
+  \ 'coc-emmet',
+  \ 'coc-json',
+  \ 'coc-prettier',
+  \ 'coc-json',
+  \ 'coc-pairs'
+  \ ]
 
 " Set ColorScheme
 set termguicolors
@@ -51,7 +53,7 @@ colorscheme OceanicNext
 " === === === === === === ===
 
 " Set relative numbers
-set nu
+set nu rnu
 " Set universal clipboard
 set clipboard+=unnamedplus
 " Set tabs and their expansion
@@ -93,17 +95,22 @@ set incsearch
 set splitright
 set splitbelow
 " use alt+hjkl to move between split/vsplit panels
-tnoremap <A-h> <C-\><C-n><C-w>h
-tnoremap <A-j> <C-\><C-n><C-w>j
-tnoremap <A-k> <C-\><C-n><C-w>k
-tnoremap <A-l> <C-\><C-n><C-w>l
-nnoremap <A-h> <C-w>h
-nnoremap <A-j> <C-w>j
-nnoremap <A-k> <C-w>k
-nnoremap <A-l> <C-w>l
+" tnoremap <A-h> <C-\><C-n><C-w>h
+" tnoremap <A-j> <C-\><C-n><C-w>j
+" tnoremap <A-k> <C-\><C-n><C-w>k
+" tnoremap <A-l> <C-\><C-n><C-w>l
+" nnoremap <A-h> <C-w>h
+" nnoremap <A-j> <C-w>j
+" nnoremap <A-k> <C-w>k
+" nnoremap <A-l> <C-w>l
 
 " Enable spellcheck for markdown files
 autocmd BufRead,BufNewFile *.md setlocal spell
+" Enable word wrap for markdown files
+autocmd BufRead,BufNewFile *.md setlocal wrap
+
+" Show 80 char column limit
+" set colorcolumn=80
 
 " === === === === === ===
 " === CoC.nvim Config ===
@@ -134,9 +141,9 @@ set signcolumn=yes
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
 inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
+  \ pumvisible() ? "\<C-n>" :
+  \ <SID>check_back_space() ? "\<TAB>" :
+  \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 function! s:check_back_space() abort
@@ -264,10 +271,15 @@ map <leader>C :setlocal formatoptions=cro<CR>
 
 " FZF Mappings 
 nnoremap <C-p> <Esc><Esc>:FZF<CR>
+nnoremap <leader>p <Esc><Esc>:Buffers<CR>
 let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
   \ 'ctrl-s': 'split',
   \ 'ctrl-v': 'vsplit'
   \}
-" inoremap <C-f> <Esc><Esc>:BLines!<CR>
+nnoremap <leader>f <Esc><Esc>:BLines<CR>
 " map <C-g> <Esc><Esc>:BCommits!<CR>
+
+" Faster navigation  Shift + J / K
+" nnoremap <S-J> 5j
+" nnoremap <S-K> 5k - CONFLIKT WITH COC.NVIM K KEY
