@@ -3,25 +3,30 @@
 " === === === ===
 
 call plug#begin(stdpath('data') . '/plugged')
-  Plug 'mhartington/oceanic-next'
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   Plug 'sheerun/vim-polyglot'
   Plug 'itchyny/lightline.vim'
+  Plug 'ap/vim-buftabline'
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   Plug 'junegunn/fzf.vim'
   Plug 'Yggdroot/indentLine'
   Plug 'tpope/vim-surround'
   Plug 'ap/vim-css-color'
   "Plug 'ThePrimeagen/vim-be-good' " Does not work 
+  " === Themes ===
+  Plug 'morhetz/gruvbox'
+  Plug 'mhartington/oceanic-next'
+  Plug 'drewtempelmeyer/palenight.vim'
 call plug#end()
 
+" === LightLine === 
 " LightLine config
 function! CocCurrentFunction()
   return get(b:, 'coc_current_function', '')
 endfunction
 
 let g:lightline = {
-  \ 'colorscheme': 'wombat',
+  \ 'colorscheme': 'wombat', 
   \ 'active': {
   \   'left': [ [ 'mode', 'paste' ],
   \             [ 'cocstatus', 'currentfunction', 'readonly', 'filename', 'modified' ] ]
@@ -32,25 +37,20 @@ let g:lightline = {
   \ },
   \ }
 
-" Declare ~CoC extensions 
-let g:coc_global_extensions = [
-  \ 'coc-tsserver',
-  \ 'coc-css',
-  \ 'coc-html',
-  \ 'coc-emmet',
-  \ 'coc-json',
-  \ 'coc-prettier',
-  \ 'coc-json',
-  \ 'coc-pairs'
-  \ ]
-
-" Set ColorScheme
-set termguicolors
-colorscheme OceanicNext
-
 " === === === === === === ===
 " ===  GENERAL  SETTINGS  ===
 " === === === === === === ===
+
+" === COLORSCHEME ===
+" Enable true colors
+let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+" Set ColorScheme
+set termguicolors
+set background=dark
+" colorscheme OceanicNext
+" colorscheme gruvbox
+colorscheme palenight
+let g:palenight_terminal_italics=1
 
 " Set relative numbers
 set nu rnu
@@ -90,6 +90,8 @@ set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:¬,precedes:«,extends:�
 
 " Highlight search in realtime
 set incsearch
+" Highlight colors fix
+hi Visual term=reverse cterm=reverse guibg=Blue
 
 " Open new split panes to right and below
 set splitright
@@ -116,8 +118,21 @@ autocmd BufRead,BufNewFile *.md setlocal wrap
 " === CoC.nvim Config ===
 " === === === === === ===
 
+" Declare ~CoC extensions 
+let g:coc_global_extensions = [
+  \ 'coc-tsserver',
+  \ 'coc-css',
+  \ 'coc-html',
+  \ 'coc-emmet',
+  \ 'coc-json',
+  \ 'coc-prettier',
+  \ 'coc-json',
+  \ 'coc-pairs'
+  \ ]
+
 " TextEdit might fail if hidden is not set.
 set hidden
+
 
 " Some servers have issues with backup files, see #649.
 set nobackup
@@ -256,6 +271,8 @@ nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
 " Resume latest coc list.
 nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
 
+" Notify COC when Enter is pressed to let COC-PAIRS work correctly
+inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
 
 " === === === === === ===
 " ===  KEY  MAPPINGS  ===
@@ -283,3 +300,7 @@ nnoremap <leader>f <Esc><Esc>:BLines<CR>
 " Faster navigation  Shift + J / K
 " nnoremap <S-J> 5j
 " nnoremap <S-K> 5k - CONFLIKT WITH COC.NVIM K KEY
+
+" Buffer Tab line
+nnoremap <leader>n :bnext<CR>
+nnoremap <leader>p :bprev<CR>
