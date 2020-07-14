@@ -4,6 +4,7 @@
 
 call plug#begin(stdpath('data') . '/plugged')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'tpope/vim-fugitive'
   Plug 'sheerun/vim-polyglot'
   Plug 'itchyny/lightline.vim'
   Plug 'ap/vim-buftabline'
@@ -12,11 +13,13 @@ call plug#begin(stdpath('data') . '/plugged')
   Plug 'Yggdroot/indentLine'
   Plug 'tpope/vim-surround'
   Plug 'ap/vim-css-color'
+  Plug 'mhinz/vim-startify'
   "Plug 'ThePrimeagen/vim-be-good' " Does not work 
   " === Themes ===
   Plug 'morhetz/gruvbox'
   Plug 'mhartington/oceanic-next'
   Plug 'drewtempelmeyer/palenight.vim'
+  Plug 'ayu-theme/ayu-vim'
 call plug#end()
 
 " === LightLine === 
@@ -29,9 +32,10 @@ let g:lightline = {
   \ 'colorscheme': 'wombat', 
   \ 'active': {
   \   'left': [ [ 'mode', 'paste' ],
-  \             [ 'cocstatus', 'currentfunction', 'readonly', 'filename', 'modified' ] ]
+  \             [ 'gitbranch', 'cocstatus', 'currentfunction', 'readonly', 'filename', 'modified' ] ]
   \ },
   \ 'component_function': {
+  \   'gitbranch': 'FugitiveHead',
   \   'cocstatus': 'coc#status',
   \   'currentfunction': 'CocCurrentFunction'
   \ },
@@ -51,6 +55,8 @@ set background=dark
 " colorscheme gruvbox
 colorscheme palenight
 let g:palenight_terminal_italics=1
+" let ayucolor='dark' "light mirage dark
+" colorscheme ayu
 
 " Set relative numbers
 set nu rnu
@@ -66,6 +72,8 @@ set tabstop=2
 " autocmd InsertEnter * norm zz
 " Set encoding
 set encoding=utf-8
+" Minimum number of lines around cursor
+set scrolloff=1
 " Show Commands entered from keyboard
 set showcmd
 " Ignore casesensetive search
@@ -75,7 +83,7 @@ set mouse=a
 " Enablle suggestions 
 set wildmode=longest,list,full
 "Making sure backspace works
-set backspace=indent,eol,start
+set bs=indent,eol,start
 " Turn off autocomment
 au FileType * set fo-=c fo-=r fo-=o
 " Don't dispay mode in command line (airilne already shows it)
@@ -114,6 +122,16 @@ autocmd BufRead,BufNewFile *.md setlocal wrap
 " Show 80 char column limit
 " set colorcolumn=80
 
+" Setting all buffers hidden to close NetRW like buffer
+augroup netrw_buf_hidden_fix
+  autocmd!
+
+  " Set all non-netrw buffers to bufhidden=hide
+  autocmd BufWinEnter *
+    \  if &ft != 'netrw'
+    \|     set bufhidden=hide
+    \| endif
+augroup end
 " === === === === === ===
 " === CoC.nvim Config ===
 " === === === === === ===
@@ -131,8 +149,7 @@ let g:coc_global_extensions = [
   \ ]
 
 " TextEdit might fail if hidden is not set.
-set hidden
-
+set nohidden
 
 " Some servers have issues with backup files, see #649.
 set nobackup
@@ -278,6 +295,9 @@ inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR
 " ===  KEY  MAPPINGS  ===
 " === === === === === ===
 
+"Let Ctrl+c work like ESC correctly
+inoremap <C-c> <ESC><ESC>
+
 " Set LEADER to ','
 let mapleader = ','
 " Toggle unprinted characters
@@ -287,7 +307,7 @@ map <leader>c :setlocal formatoptions-=cro<CR>
 map <leader>C :setlocal formatoptions=cro<CR>
 
 " FZF Mappings 
-nnoremap <C-p> <Esc><Esc>:FZF<CR>
+nnoremap <C-p> <Esc><Esc>:GFiles<CR>
 nnoremap <leader>p <Esc><Esc>:Buffers<CR>
 let g:fzf_action = {
   \ 'ctrl-t': 'tab split',
@@ -304,3 +324,4 @@ nnoremap <leader>f <Esc><Esc>:BLines<CR>
 " Buffer Tab line
 nnoremap <leader>n :bnext<CR>
 nnoremap <leader>p :bprev<CR>
+
