@@ -1,65 +1,37 @@
-" === === === ===
-" === PLUGINS ===
-" === === === ===
-
-call plug#begin(stdpath('data') . '/plugged')
-  Plug 'neoclide/coc.nvim', {'branch': 'release'}
-  Plug 'tpope/vim-fugitive'
-  Plug 'sheerun/vim-polyglot'
+"------------------------------------------------
+" Plugins START
+call plug#begin()
+  Plug 'airblade/vim-gitgutter'
+  Plug 'cespare/vim-toml'
+  Plug 'editorconfig/editorconfig-vim'
   Plug 'itchyny/lightline.vim'
-  Plug 'ap/vim-buftabline'
+  Plug 'junegunn/vim-easy-align'
   Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
   Plug 'junegunn/fzf.vim'
-  Plug 'Yggdroot/indentLine'
-  Plug 'tpope/vim-surround'
-  Plug 'ap/vim-css-color'
-  Plug 'mhinz/vim-startify'
-  "Plug 'ThePrimeagen/vim-be-good' " Does not work 
-  " === Themes ===
-  Plug 'morhetz/gruvbox'
-  Plug 'mhartington/oceanic-next'
-  Plug 'drewtempelmeyer/palenight.vim'
-  Plug 'ayu-theme/ayu-vim'
+  Plug 'mengelbrecht/lightline-bufferline'
+  Plug 'lifepillar/vim-gruvbox8'
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'tpope/vim-commentary'
 call plug#end()
+" Plugins END
+"------------------------------------------------
 
-" === LightLine === 
-" LightLine config
-function! CocCurrentFunction()
-  return get(b:, 'coc_current_function', '')
-endfunction
-
-let g:lightline = {
-  \ 'colorscheme': 'wombat', 
-  \ 'active': {
-  \   'left': [ [ 'mode', 'paste' ],
-  \             [ 'gitbranch', 'cocstatus', 'currentfunction', 'readonly', 'filename', 'modified' ] ]
-  \ },
-  \ 'component_function': {
-  \   'gitbranch': 'FugitiveHead',
-  \   'cocstatus': 'coc#status',
-  \   'currentfunction': 'CocCurrentFunction'
-  \ },
-  \ }
-
-" === === === === === === ===
-" ===  GENERAL  SETTINGS  ===
-" === === === === === === ===
-
-" === COLORSCHEME ===
-" Enable true colors
-let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-" Set ColorScheme
-set termguicolors
-set background=dark
-" colorscheme OceanicNext
-" colorscheme gruvbox
-colorscheme palenight
-let g:palenight_terminal_italics=1
-" let ayucolor='dark' "light mirage dark
-" colorscheme ayu
-
-" Set relative numbers
-set nu rnu
+"------------------------------------------------
+" Settings START
+let mapleader = "\<Space>"
+filetype plugin on
+set completeopt=menuone
+set mouse=a
+set nobackup
+set nocompatible
+set noswapfile
+set nowritebackup
+set number rnu
+set signcolumn=yes
+set title
+set wrap
+setlocal wrap
+set re=1 "Some TESTING HERE
 " Set universal clipboard
 set clipboard+=unnamedplus
 " Set tabs and their expansion
@@ -68,8 +40,6 @@ set smarttab
 set shiftwidth=2
 set softtabstop=2
 set tabstop=2
-" Vertically center document when entering insert mode
-" autocmd InsertEnter * norm zz
 " Set encoding
 set encoding=utf-8
 " Minimum number of lines around cursor
@@ -80,47 +50,15 @@ set showcmd
 set ignorecase
 " Enable mouse
 set mouse=a
-" Enablle suggestions 
-set wildmode=longest,list,full
+
 "Making sure backspace works
 set bs=indent,eol,start
-" Turn off autocomment
-au FileType * set fo-=c fo-=r fo-=o
-" Don't dispay mode in command line (airilne already shows it)
-set noshowmode
-" Don't wrap lines (use 'set wrap' to wrap lines)
-set nowrap
-
+set ttyfast
+set lazyredraw
 " Set unprinted characters
 " set list
 "How to show unprinted chars
 set listchars=tab:→\ ,space:·,nbsp:␣,trail:•,eol:¬,precedes:«,extends:» 
-
-" Highlight search in realtime
-set incsearch
-" Highlight colors fix
-hi Visual term=reverse cterm=reverse guibg=Blue
-
-" Open new split panes to right and below
-set splitright
-set splitbelow
-" use alt+hjkl to move between split/vsplit panels
-" tnoremap <A-h> <C-\><C-n><C-w>h
-" tnoremap <A-j> <C-\><C-n><C-w>j
-" tnoremap <A-k> <C-\><C-n><C-w>k
-" tnoremap <A-l> <C-\><C-n><C-w>l
-" nnoremap <A-h> <C-w>h
-" nnoremap <A-j> <C-w>j
-" nnoremap <A-k> <C-w>k
-" nnoremap <A-l> <C-w>l
-
-" Enable spellcheck for markdown files
-autocmd BufRead,BufNewFile *.md setlocal spell
-" Enable word wrap for markdown files
-autocmd BufRead,BufNewFile *.md setlocal wrap
-
-" Show 80 char column limit
-" set colorcolumn=80
 
 " Setting all buffers hidden to close NetRW like buffer
 augroup netrw_buf_hidden_fix
@@ -132,9 +70,107 @@ augroup netrw_buf_hidden_fix
     \|     set bufhidden=hide
     \| endif
 augroup end
-" === === === === === ===
-" === CoC.nvim Config ===
-" === === === === === ===
+" Settings END
+"------------------------------------------------
+
+"------------------------------------------------
+" persist START
+set undofile " Maintain undo history between sssions
+set undodir=~/.vim/undodir
+
+" Persist cursor
+autocmd BufReadPost *
+  \ if line("'\"") >= 1 && line("'\"") <= line("$") && &ft !~# 'commit'
+  \ |   exe "normal! g`\""
+  \ | endif
+" persist END
+"------------------------------------------------
+
+"------------------------------------------------
+" Theme START
+syntax on
+set termguicolors
+colorscheme gruvbox8
+set background=dark
+set nocursorline
+set hidden
+set cmdheight=1
+set laststatus=2
+
+let g:gruvbox_transp_bg = 1
+let g:gruvbox_italicize_strings = 0
+
+set list
+set listchars=tab:»·,trail:·
+
+" let buffers be clickable
+let g:lightline#bufferline#clickable=1
+let g:lightline#bufferline#shorten_path=1
+let g:lightline#bufferline#min_buffer_count=1
+
+" LightLine Config
+let g:lightline = {
+\  'colorscheme': 'jellybeans',
+\  'active': {
+\    'left': [ [], [], [ 'relativepath' ] ],
+\    'right': [ [], [], [ 'lineinfo', 'percent' ] ]
+\  },
+\  'inactive': {
+\    'left': [ [], [], [ 'relativepath' ] ],
+\    'right': [ [], [], [ 'lineinfo', 'percent' ] ]
+\  },
+\  'subseparator': {
+\    'left': '', 'right': ''
+\  },
+\  'tabline': {
+\    'left': [ ['buffers'] ],
+\    'right': [ [] ]
+\  },
+\  'tabline_separator': {
+\    'left': "", 'right': ""
+\  },
+\  'tabline_subseparator': {
+\    'left': "", 'right': ""
+\  },
+\  'component_expand': {
+\    'buffers': 'lightline#bufferline#buffers'
+\  },
+\  'component_raw': {
+\    'buffers': 1
+\  },
+\  'component_type': {
+\    'buffers': 'tabsel'
+\  }
+\}
+
+" Theme END
+"------------------------------------------------
+
+"------------------------------------------------
+" Remaps START
+
+"Let Ctrl+c work like ESC correctly
+inoremap <C-c> <ESC><ESC>
+
+" Align GitHub-flavored Markdown tables
+au FileType markdown vmap <Leader><Bslash> :EasyAlign*<Bar><Enter>
+
+" Toggle between buffers
+nmap <Leader>n :bn<CR>
+nmap <Leader>p :bp<CR>
+nnoremap <C-p> :Rg<Cr>
+nnoremap <C-e> :Files<Cr>
+nmap <Leader>bl :Buffers<CR>
+nmap <Leader>g :GFiles<CR>
+nmap <Leader>e :Files<CR>
+nmap <Leader>rg :Rg<CR>
+nmap <Leader>g? :GFiles?<CR>
+nmap <Leader>h :History<CR>
+" Remaps END
+"------------------------------------------------
+
+"------------------------------------------------
+" Coc START
 
 " Declare ~CoC extensions 
 let g:coc_global_extensions = [
@@ -148,13 +184,6 @@ let g:coc_global_extensions = [
   \ 'coc-pairs'
   \ ]
 
-" TextEdit might fail if hidden is not set.
-set nohidden
-
-" Some servers have issues with backup files, see #649.
-set nobackup
-set nowritebackup
-
 " Give more space for displaying messages.
 set cmdheight=2
 
@@ -165,17 +194,13 @@ set updatetime=300
 " Don't pass messages to |ins-completion-menu|.
 set shortmess+=c
 
-" Always show the signcolumn, otherwise it would shift the text each time
-" diagnostics appear/become resolved.
-set signcolumn=yes
-
 " Use tab for trigger completion with characters ahead and navigate.
 " NOTE: Use command ':verbose imap <tab>' to make sure tab is not mapped by
 " other plugin before putting this into your config.
 inoremap <silent><expr> <TAB>
-  \ pumvisible() ? "\<C-n>" :
-  \ <SID>check_back_space() ? "\<TAB>" :
-  \ coc#refresh()
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
 inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
 
 function! s:check_back_space() abort
@@ -184,17 +209,23 @@ function! s:check_back_space() abort
 endfunction
 
 " Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent><expr> <c-@> coc#refresh()
+endif
 
 " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current
 " position. Coc only does snippet and additional edit on confirm.
+" <cr> could be remapped by other vim plugin, try `:verbose imap <CR>`.
 if exists('*complete_info')
   inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
 else
-  imap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+  inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 endif
 
 " Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
 nmap <silent> [g <Plug>(coc-diagnostic-prev)
 nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
@@ -211,7 +242,7 @@ function! s:show_documentation()
   if (index(['vim','help'], &filetype) >= 0)
     execute 'h '.expand('<cword>')
   else
-    call CocAction('doHover')
+    call CocActionAsync('doHover')
   endif
 endfunction
 
@@ -233,28 +264,10 @@ augroup mygroup
   autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
 augroup end
 
-" Applying codeAction to the selected region.
-" Example: `<leader>aap` for current paragraph
-xmap <leader>a  <Plug>(coc-codeaction-selected)
-nmap <leader>a  <Plug>(coc-codeaction-selected)
-
-" Remap keys for applying codeAction to the current line.
-nmap <leader>ac  <Plug>(coc-codeaction)
+" Remap keys for applying codeAction to the current buffer.
+nmap <leader>ga  <Plug>(coc-codeaction)
 " Apply AutoFix to problem on the current line.
 nmap <leader>qf  <Plug>(coc-fix-current)
-
-" Introduce function text object
-" NOTE: Requires 'textDocument.documentSymbol' support from the language server.
-xmap if <Plug>(coc-funcobj-i)
-xmap af <Plug>(coc-funcobj-a)
-omap if <Plug>(coc-funcobj-i)
-omap af <Plug>(coc-funcobj-a)
-
-" Use <TAB> for selections ranges.
-" NOTE: Requires 'textDocument/selectionRange' support from the language server.
-" coc-tsserver, coc-python are the examples of servers that support it.
-nmap <silent> <TAB> <Plug>(coc-range-select)
-xmap <silent> <TAB> <Plug>(coc-range-select)
 
 " Add `:Format` command to format current buffer.
 command! -nargs=0 Format :call CocAction('format')
@@ -265,63 +278,16 @@ command! -nargs=? Fold :call     CocAction('fold', <f-args>)
 " Add `:OR` command for organize imports of the current buffer.
 command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
 
-" Add (Neo)Vim's native statusline support.
-" NOTE: Please see `:h coc-status` for integrations with external plugins that
-" provide custom statusline: lightline.vim, vim-airline.
-" set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-
-" Mappings using CoCList:
+" Mappings for CoCList
 " Show all diagnostics.
-nnoremap <silent> <space>a  :<C-u>CocList diagnostics<cr>
-" Manage extensions.
-nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
 " Show commands.
-nnoremap <silent> <space>c  :<C-u>CocList commands<cr>
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
 " Find symbol of current document.
-nnoremap <silent> <space>o  :<C-u>CocList outline<cr>
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
 " Search workspace symbols.
-nnoremap <silent> <space>s  :<C-u>CocList -I symbols<cr>
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
 " Do default action for next item.
-nnoremap <silent> <space>j  :<C-u>CocNext<CR>
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
 " Do default action for previous item.
-nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
-" Resume latest coc list.
-nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
-
-" Notify COC when Enter is pressed to let COC-PAIRS work correctly
-inoremap <silent><expr> <cr> pumvisible() ? coc#_select_confirm() : "\<C-g>u\<CR>\<c-r>=coc#on_enter()\<CR>"
-
-" === === === === === ===
-" ===  KEY  MAPPINGS  ===
-" === === === === === ===
-
-"Let Ctrl+c work like ESC correctly
-inoremap <C-c> <ESC><ESC>
-
-" Set LEADER to ','
-let mapleader = ','
-" Toggle unprinted characters
-noremap <leader>m :set invlist<CR>
-" Enable and disable autocomment
-map <leader>c :setlocal formatoptions-=cro<CR>
-map <leader>C :setlocal formatoptions=cro<CR>
-
-" FZF Mappings 
-nnoremap <C-p> <Esc><Esc>:GFiles<CR>
-nnoremap <leader>p <Esc><Esc>:Buffers<CR>
-let g:fzf_action = {
-  \ 'ctrl-t': 'tab split',
-  \ 'ctrl-s': 'split',
-  \ 'ctrl-v': 'vsplit'
-  \}
-nnoremap <leader>f <Esc><Esc>:BLines<CR>
-" map <C-g> <Esc><Esc>:BCommits!<CR>
-
-" Faster navigation  Shift + J / K
-" nnoremap <S-J> 5j
-" nnoremap <S-K> 5k - CONFLIKT WITH COC.NVIM K KEY
-
-" Buffer Tab line
-nnoremap <leader>n :bnext<CR>
-nnoremap <leader>p :bprev<CR>
-
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
