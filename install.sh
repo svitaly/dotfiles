@@ -16,7 +16,10 @@ function ask() {
 SH="${HOME}/.bashrc"
 ZSHRC="${HOME}/.zshrc"
 if [ -f "$ZSHRC" ]; then
-	SH="$ZSHRC"
+    SH="$ZSHRC"
+    echo "Found ZSH config! Will be updating ~/.zshrc"
+else
+    echo "Found BASH config! Will be updating ~/.bashrc"
 fi
 
 echo >> $SH
