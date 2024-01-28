@@ -16,9 +16,6 @@ y = 0
 #
 # Color palette
 # https://spec.draculatheme.com
-#
-# Instructions
-# https://github.com/alacritty/alacritty/blob/master/extra/man/alacritty.5.scd
 
 [colors.primary]
 

@@ -43,40 +43,40 @@ require('lazy').setup({
       vim.keymap.set("n", "<leader>gc", vim.cmd.DiffviewClose); --also :tabclose
     end,
   },
-  -- Detect tabstop and shiftwidth automatically 
-  'tpope/vim-sleuth',
+  'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically 
   {
-    -- LSP Configuration & Plugins - config below
-    'neovim/nvim-lspconfig',
+    "ggandor/leap.nvim", -- better navigation with leap.nvim
+    config = function()
+      require("leap").add_default_mappings()
+    end,
+    lazy = false,
+  },
+  {
+    'neovim/nvim-lspconfig', -- LSP Configuration & Plugins
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       { 'williamboman/mason.nvim', config = true },
       'williamboman/mason-lspconfig.nvim',
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim', opts = {} },
-      -- Additional lua configuration, makes nvim stuff amazing!
-      'folke/neodev.nvim',
+      'folke/neodev.nvim', -- Additional lua configuration, makes nvim amazing!
     },
   },
   {
-    -- Autocompletion
-    'hrsh7th/nvim-cmp',
-    dependencies = {
-      -- Snippet Engine & its associated nvim-cmp source
+    'hrsh7th/nvim-cmp', -- Autocompletion
+    dependencies = { -- Snippet Engine & its associated nvim-cmp source
       'L3MON4D3/LuaSnip',
       'saadparwaiz1/cmp_luasnip',
-      -- Adds LSP completion capabilities
-      'hrsh7th/cmp-nvim-lsp',
+      'hrsh7th/cmp-nvim-lsp', -- Adds LSP completion capabilities
       'hrsh7th/cmp-path',
-      -- Adds a number of user-friendly snippets
-      'rafamadriz/friendly-snippets',
+      'rafamadriz/friendly-snippets', -- Adds a number of user-friendly snippets
     },
   },
   { 'windwp/nvim-autopairs', event = 'InsertEnter', opts = {} },
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim', opts = {} },
   {
-    "kylechui/nvim-surround",
+    "kylechui/nvim-surround", -- working with surrounds like {([])}
     version = "*",
     event = "VeryLazy",
     config = function()
@@ -84,10 +84,8 @@ require('lazy').setup({
     end
   },
   {
-    -- Adds git related signs to the gutter, as well as utilities for managing changes
-    'lewis6991/gitsigns.nvim',
-    opts = {
-      -- See `:help gitsigns.txt`
+    'lewis6991/gitsigns.nvim', -- Adds git related signs to the gutter
+    opts = { -- See `:help gitsigns.txt`
       signs = {
         add = { text = '+' },
         change = { text = '~' },
@@ -165,8 +163,7 @@ require('lazy').setup({
     end,
   },
   {
-    -- Set lualine as statusline - See `:help lualine.txt`
-    'nvim-lualine/lualine.nvim',
+    'nvim-lualine/lualine.nvim', -- Set statusline - See `:help lualine.txt`
     opts = {
       options = {
         icons_enabled = true,
@@ -174,6 +171,9 @@ require('lazy').setup({
         component_separators = '|',
         section_separators = '',
       },
+      sections = {
+        lualine_c = {{'filename', path = 1,}}
+      }
     },
   },
   {
@@ -191,9 +191,8 @@ require('lazy').setup({
       vim.keymap.set("v", "<leader>/", "<esc><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<cr>")
     end,
   },
-  -- Fuzzy Finder (files, lsp, etc)
   {
-    'nvim-telescope/telescope.nvim',
+    'nvim-telescope/telescope.nvim', -- Fuzzy Finder (files, lsp, etc)
     branch = '0.1.x',
     dependencies = {
       'nvim-lua/plenary.nvim',
@@ -212,75 +211,43 @@ require('lazy').setup({
     },
   },
   {"nvim-telescope/telescope-file-browser.nvim"}, -- use telescope as browser insead of netrw
-
   {
-    -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects',
-    },
+    'nvim-treesitter/nvim-treesitter', -- Highlight, edit, and navigate code
+    dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
     build = ':TSUpdate',
   },
-
-  -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
-  --       These are some example plugins that I've included in the kickstart repository.
-  --       Uncomment any of the lines below to enable them.
-  -- require 'kickstart.plugins.autoformat',
-  -- require 'kickstart.plugins.debug',
-
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
-  --    up-to-date with whatever is in the kickstart repo.
-  --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  --
-  --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  -- { import = 'custom.plugins' },
 }, {})
 
--- [[ Setting options ]]
--- See `:help vim.o`
+-- [[ Setting options ]] See `:help vim.o`
 
--- Set highlight on search
-vim.o.hlsearch = true
--- Make line numbers default
-vim.wo.relativenumber = true
--- Enable mouse mode
-vim.o.mouse = 'a'
--- Sync clipboard between OS and Neovim. See `:help 'clipboard'`
-vim.o.clipboard = 'unnamedplus'
--- Enable break indent
-vim.o.breakindent = true
--- Save undo history
-vim.o.undofile = true
+vim.o.hlsearch = true -- Set highlight on search
+-- vim.wo.relativenumber = true -- Make line numbers default
+vim.wo.number = true
+vim.o.mouse = 'a' -- Enable mouse mode
+vim.o.clipboard = 'unnamedplus' -- Sync clipboard between OS and Neovim
+vim.o.breakindent = true -- Enable break indent
+vim.o.undofile = true -- Save undo history
 vim.o.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.o.ignorecase = true
--- Case-insensitive searching UNLESS \C or capital in search
--- vim.o.smartcase = true
--- Keep signcolumn on by default
-vim.wo.signcolumn = 'yes'
--- Decrease update time
-vim.o.updatetime = 250
+-- vim.o.smartcase = true -- Case-insensitive searching UNLESS \C or capital in search
+vim.wo.signcolumn = 'yes' -- Keep signcolumn on by default
+vim.o.updatetime = 250 -- Decrease update time
 vim.o.timeoutlen = 300
--- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
+vim.o.completeopt = 'menuone,noselect' -- Set completeopt for better experience
 vim.o.termguicolors = true
 vim.o.colorcolumn = "80"
 vim.o.listchars = 'eol:'
--- Enable list chars with:
--- vim.opt.list = true
+-- vim.opt.list = true -- Enable list chars with:
 vim.o.laststatus = 3
--- implement borders for splits:
-vim.cmd[[highlight WinSeparator guibg=None]]
--- same as :highligth WinSeparator guibg=None
+vim.cmd[[highlight WinSeparator guibg=None]] -- implement borders for splits:
 
 -- Keymaps for better default experience See `:help vim.keymap.set()`
 vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set("i", "<C-c>", "<Esc>")
 vim.keymap.set("n", "Q", "<nop>")
 
-
 -- fileexplorer -- based on Telescope
--- vim.keymap.set("n", "<leader>e", vim.cmd.Ex) -- default explorer
+-- vim.keymap.set("n", "<leader>e", vim.cmd.Ex) -- default explorer netrw
 vim.keymap.set("n", "<leader>e", ":Telescope file_browser path=%:p:h select_buffer=true<CR><Esc>")
 vim.keymap.set("n", "<leader>c", ":bdelete<CR>") -- Close buffer
 
@@ -317,7 +284,7 @@ local function set_indent()
 end
 vim.keymap.set("n", "<leader>ui", set_indent)
 
--- window controls
+-- Window controls
 vim.keymap.set("n", "|", "<CMD>vsplit<CR>")
 vim.keymap.set("n", "\\", "<CMD>split<CR>")
 vim.keymap.set("n", "<C-h>", "<C-w>h")
@@ -368,8 +335,7 @@ require('telescope').setup {
       prompt_path = true,
       -- depth = 2, -- shows two dirs deeper
       -- previewer = false, -- turn off the previewer
-      use_fd = true,
-      -- disables netrw and use telescope-file-browser in its place
+      use_fd = true, -- disables netrw and use telescope-file-browser instead
       hijack_netrw = true,
       initial_mode = 'normal',
       prompt_prefix = '> ',
@@ -451,10 +417,12 @@ vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, { desc = 
 -- Defer Treesitter setup after first render to improve startup time of 'nvim {filename}'
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
+    sync_install = false,
     -- Add languages to be installed here that you want installed for treesitter
     ensure_installed = { 'lua', 'python', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim', 'bash' },
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
     auto_install = true,
+    ignore_install = {},
     highlight = {
       enable = true,
       additional_vim_regex_highlighting = false,
@@ -487,7 +455,7 @@ local on_attach = function(_, bufnr)
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  -- nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -514,6 +482,7 @@ require('which-key').register {
   ['<leader>f'] = { name = '[F]iles', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
   ['<leader>w'] = { name = '[W]orkspace', _ = 'which_key_ignore' },
+  ['<leader>u'] = { name = '[U]ser Interface', _ = 'which_key_ignore' },
 }
 -- register which-key VISUAL mode
 -- required for visual <leader>hs (hunk stage) to work
@@ -538,9 +507,9 @@ require('mason-lspconfig').setup()
 local servers = {
   -- clangd = {},
   -- gopls = {},
-  pyright = {},
+  -- pyright = {},
   -- rust_analyzer = {},
-  tsserver = {},
+  -- tsserver = {},
   html = { filetypes = { 'html', 'twig', 'hbs'} },
 
   lua_ls = {
@@ -599,10 +568,7 @@ cmp.setup {
     ['<C-b>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
-    ['<CR>'] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = false,
-    },
+    ['<CR>'] = cmp.mapping.confirm { select = false },
     ['<Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
