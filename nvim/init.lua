@@ -237,7 +237,7 @@ vim.o.completeopt = 'menuone,noselect' -- Set completeopt for better experience
 vim.o.termguicolors = true
 vim.o.colorcolumn = "80"
 vim.o.listchars = 'eol:'
--- vim.opt.list = true -- Enable list chars with:
+vim.opt.list = true -- Enable list chars with:
 vim.o.laststatus = 3
 vim.cmd[[highlight WinSeparator guibg=None]] -- implement borders for splits:
 
