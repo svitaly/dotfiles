@@ -24,23 +24,23 @@ require('lazy').setup({
   {
     'tpope/vim-fugitive',
     config = function()
-      vim.keymap.set("n", "<leader>gs", vim.cmd.Git);
+      vim.keymap.set("n", "<leader>gs", vim.cmd.Git, {desc = '[G]it [S]tatus'});
     end,
   },
   'tpope/vim-rhubarb',
   {
     'mbbill/undotree',
     config = function()
-      vim.keymap.set("n", "<leader>u",  vim.cmd.UndotreeToggle)
+      vim.keymap.set("n", "<leader>tu",  vim.cmd.UndotreeToggle, {desc = '[T]oggle [U]ndo tree'})
     end,
   },
   {
     'sindrets/diffview.nvim',
     config = function()
       -- cycle through files with Tab and s-Tab
-      vim.keymap.set("n", "<leader>gh", vim.cmd.DiffviewFileHistory); -- current repo
-      vim.keymap.set('n', '<leader>gf', ':DiffviewFileHistory %<CR>'); --current file
-      vim.keymap.set("n", "<leader>gc", vim.cmd.DiffviewClose); --also :tabclose
+      vim.keymap.set("n", "<leader>gh", vim.cmd.DiffviewFileHistory, {desc = '[G]it Diff [H]istory'}); -- current repo
+      vim.keymap.set('n', '<leader>gf', ':DiffviewFileHistory %<CR>', {desc = '[G]it Diff [F]ile history'}); --current file
+      vim.keymap.set("n", "<leader>gc", vim.cmd.DiffviewClose, {desc = '[G]it diff [c]lose'}); --also :tabclose
     end,
   },
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically 
@@ -187,7 +187,7 @@ require('lazy').setup({
     'numToStr/Comment.nvim',
     opts = {},
     config = function()
-      vim.keymap.set("n", "<leader>/", function() require("Comment.api").toggle.linewise.count(vim.v.count > 0 and vim.v.count or 1) end)
+      vim.keymap.set("n", "<leader>/", function() require("Comment.api").toggle.linewise.count(vim.v.count > 0 and vim.v.count or 1) end, {desc = 'Comment this line'})
       vim.keymap.set("v", "<leader>/", "<esc><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<cr>")
     end,
   },
@@ -248,8 +248,8 @@ vim.keymap.set("n", "Q", "<nop>")
 
 -- fileexplorer -- based on Telescope
 -- vim.keymap.set("n", "<leader>e", vim.cmd.Ex) -- default explorer netrw
-vim.keymap.set("n", "<leader>e", ":Telescope file_browser path=%:p:h select_buffer=true<CR><Esc>")
-vim.keymap.set("n", "<leader>c", ":bdelete<CR>") -- Close buffer
+vim.keymap.set("n", "<leader>e", ":Telescope file_browser path=%:p:h select_buffer=true<CR><Esc>", {desc = '[E]xplore files'})
+vim.keymap.set("n", "<leader>c", ":bdelete<CR>", {desc = '[C]lose buffer'}) -- Close buffer
 
 -- Remap for dealing with word wrap
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -282,7 +282,7 @@ local function set_indent()
     vim.bo.shiftwidth = indent -- local to buffer
   end
 end
-vim.keymap.set("n", "<leader>ui", set_indent)
+vim.keymap.set("n", "<leader>ui", set_indent, { desc = 'Set buffer indentation'})
 
 -- Window controls
 vim.keymap.set("n", "|", "<CMD>vsplit<CR>")
@@ -411,7 +411,7 @@ vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { de
 vim.keymap.set('n', '<leader>fw', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
+vim.keymap.set('n', '<leader>fr', require('telescope.builtin').resume, { desc = '[F]ind [R]esume' })
 
 -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
 -- Defer Treesitter setup after first render to improve startup time of 'nvim {filename}'
@@ -444,7 +444,7 @@ local on_attach = function(_, bufnr)
   end
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  -- nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
   nmap('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -459,11 +459,11 @@ local on_attach = function(_, bufnr)
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-  nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
+  nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, {desc = '[W]orkspace [A]dd Folder'})
+  nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, { desc = '[W]orkspace [R]emove Folder'})
   nmap('<leader>wl', function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, '[W]orkspace [L]ist Folders')
+  end, {desc = '[W]orkspace [L]ist Folders'})
 
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
@@ -473,7 +473,6 @@ end
 
 -- document existing key chains
 require('which-key').register {
-  ['<leader>c'] = { name = '[C]ode', _ = 'which_key_ignore' },
   ['<leader>d'] = { name = '[D]ocument', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = 'Git [H]unk', _ = 'which_key_ignore' },
