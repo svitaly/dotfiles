@@ -7,10 +7,10 @@ local config = wezterm.config_builder()
 -- This is where you actually apply your config choices
 
 -- For example, changing the color scheme:
-config.color_scheme = "Dracula"
+config.color_scheme = "Tokyo Night"
 
-config.font = wezterm.font("Pragmasevka Nerd Font")
--- config.font = wezterm.font("JetBrainsMono Nerd Font Mono")
+-- config.font = wezterm.font("Pragmasevka Nerd Font")
+config.font = wezterm.font("JetBrainsMono Nerd Font Mono")
 
 config.window_padding = {
 	left = 0,

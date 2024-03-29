@@ -13,76 +13,122 @@ decorations = "none"
 x = 0
 y = 0
 
-# Dracula theme for Alacritty
+
+# TOKYO NIGHT STARTS Alacritty Colors
+# Default colors
+[colors.primary]
+background = '#1a1b26'
+foreground = '#c0caf5'
+
+#[colors.cursor]
+#cursor = '#c0caf5'
+#text = '#1a1b26'
+
+# Normal colors
+[colors.normal]
+black = '#15161e'
+red = '#f7768e'
+green = '#9ece6a'
+yellow = '#e0af68'
+blue = '#7aa2f7'
+magenta = '#bb9af7'
+cyan = '#7dcfff'
+white = '#a9b1d6'
+
+# Bright colors
+[colors.bright]
+black = '#414868'
+red = '#f7768e'
+green = '#9ece6a'
+yellow = '#e0af68'
+blue = '#7aa2f7'
+magenta = '#bb9af7'
+cyan = '#7dcfff'
+white = '#c0caf5'
+
+# Indexed Colors
+[[colors.indexed_colors]]
+index = 16
+color = '#ff9e64'
+
+[[colors.indexed_colors]]
+index = 17
+color = '#db4b4b'
+# TOKYO NIGHT ENDS
+
+
+# DRACULA STARTS theme for Alacritty
 # https://draculatheme.com/alacritty
 #
 # Color palette
 # https://spec.draculatheme.com
 
-[colors.primary]
+# [colors.primary]
+#
+# background = "#282a36"
+# foreground = "#f8f8f2"
+# bright_foreground = "#ffffff"
+#
+# [colors.cursor]
+#
+# text = "#282a36"
+# cursor = "#f8f8f2"
+#
+# [colors.vi_mode_cursor]
+#
+# text = "CellBackground"
+# cursor = "CellForeground"
+#
+# [colors.selection]
+#
+# text = "CellForeground"
+# background = "#44475a"
+#
+# [colors.normal]
+#
+# black = "#21222c"
+# red = "#ff5555"
+# green = "#50fa7b"
+# yellow = "#f1fa8c"
+# blue = "#bd93f9"
+# magenta = "#ff79c6"
+# cyan = "#8be9fd"
+# white = "#f8f8f2"
+#
+# [colors.bright]
+#
+# black = "#6272a4"
+# red = "#ff6e6e"
+# green = "#69ff94"
+# yellow = "#ffffa5"
+# blue = "#d6acff"
+# magenta = "#ff92df"
+# cyan = "#a4ffff"
+# white = "#ffffff"
+#
+# [colors.search.matches]
+#
+# foreground = "#44475a"
+# background = "#50fa7b"
+#
+# [colors.search.focused_match]
+#
+# foreground = "#44475a"
+# background = "#ffb86c"
+#
+# [colors.footer_bar]
+#
+# background = "#282a36"
+# foreground = "#f8f8f2"
+#
+# [colors.hints.start]
+#
+# foreground = "#282a36"
+# background = "#f1fa8c"
+#
+# [colors.hints.end]
+#
+# foreground = "#f1fa8c"
+# background = "#282a36"
 
-background = "#282a36"
-foreground = "#f8f8f2"
-bright_foreground = "#ffffff"
-
-[colors.cursor]
-
-text = "#282a36"
-cursor = "#f8f8f2"
-
-[colors.vi_mode_cursor]
-
-text = "CellBackground"
-cursor = "CellForeground"
-
-[colors.selection]
-
-text = "CellForeground"
-background = "#44475a"
-
-[colors.normal]
-
-black = "#21222c"
-red = "#ff5555"
-green = "#50fa7b"
-yellow = "#f1fa8c"
-blue = "#bd93f9"
-magenta = "#ff79c6"
-cyan = "#8be9fd"
-white = "#f8f8f2"
-
-[colors.bright]
-
-black = "#6272a4"
-red = "#ff6e6e"
-green = "#69ff94"
-yellow = "#ffffa5"
-blue = "#d6acff"
-magenta = "#ff92df"
-cyan = "#a4ffff"
-white = "#ffffff"
-
-[colors.search.matches]
-
-foreground = "#44475a"
-background = "#50fa7b"
-
-[colors.search.focused_match]
-
-foreground = "#44475a"
-background = "#ffb86c"
-
-[colors.footer_bar]
-
-background = "#282a36"
-foreground = "#f8f8f2"
-
-[colors.hints.start]
-
-foreground = "#282a36"
-background = "#f1fa8c"
-
-[colors.hints.end]
-
-foreground = "#f1fa8c"
-background = "#282a36"
+# DRACULA ENDS
