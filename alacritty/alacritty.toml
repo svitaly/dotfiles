@@ -1,9 +1,9 @@
 [font]
-size = 14
+size = 10
 
 [font.normal]
-family = "JetBrainsMono Nerd Font"
-# family = "Pragmasevka Nerd Font"
+# family = "JetBrainsMono Nerd Font"
+family = "PragmataPro Mono Liga"
 
 [window]
 decorations = "none"

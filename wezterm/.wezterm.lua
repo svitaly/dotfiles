@@ -9,8 +9,8 @@ local config = wezterm.config_builder()
 -- For example, changing the color scheme:
 config.color_scheme = "Tokyo Night"
 
--- config.font = wezterm.font("Pragmasevka Nerd Font")
-config.font = wezterm.font("JetBrainsMono Nerd Font Mono")
+config.font = wezterm.font("PragmataPro Mono Liga")
+-- config.font = wezterm.font("JetBrainsMono Nerd Font Mono")
 
 config.window_padding = {
 	left = 0,
