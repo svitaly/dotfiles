@@ -50,7 +50,10 @@ vim.opt.foldmethod = "indent" -- fold by indenting (zc, zM, zo, zR)
 vim.o.foldlevel = 99 -- open files unfolded
 vim.opt.wrap = false
 
-vim.keymap.set("n", "<leader>c", ":bdelete<CR>", { desc = "[C]lose buffer" }) -- Close buffer
+-- fileexplorer -- based on Telescope
+-- vim.keymap.set("n", "<leader>e", vim.cmd.Ex) -- default explorer netrw
+vim.keymap.set('n', '<leader>e', ':Telescope file_browser path=%:p:h select_buffer=true<CR><Esc>')
+vim.keymap.set('n', '<leader>c', ':bdelete<CR>', { desc = '[C]lose buffer' }) -- Close buffer
 
 -- Remap for dealing with word wrap
 vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
@@ -187,22 +190,22 @@ require("lazy").setup({
 					gs.reset_hunk({ vim.fn.line("."), vim.fn.line("v") })
 				end, { desc = "reset git hunk" })
 				-- normal mode
-				map("n", "<leader>hs", gs.stage_hunk, { desc = "git stage hunk" })
-				map("n", "<leader>hr", gs.reset_hunk, { desc = "git reset hunk" })
-				map("n", "<leader>hS", gs.stage_buffer, { desc = "git Stage buffer" })
-				map("n", "<leader>hu", gs.undo_stage_hunk, { desc = "undo stage hunk" })
-				map("n", "<leader>hR", gs.reset_buffer, { desc = "git Reset buffer" })
-				map("n", "<leader>hp", gs.preview_hunk, { desc = "preview git hunk" })
-				map("n", "<leader>hb", function()
+				map("n", "<leader>ghs", gs.stage_hunk, { desc = "git stage hunk" })
+				map("n", "<leader>ghr", gs.reset_hunk, { desc = "git reset hunk" })
+				map("n", "<leader>ghS", gs.stage_buffer, { desc = "git Stage buffer" })
+				map("n", "<leader>ghu", gs.undo_stage_hunk, { desc = "undo stage hunk" })
+				map("n", "<leader>ghR", gs.reset_buffer, { desc = "git Reset buffer" })
+				map("n", "<leader>ghp", gs.preview_hunk, { desc = "preview git hunk" })
+				map("n", "<leader>ghb", function()
 					gs.blame_line({ full = false })
 				end, { desc = "git blame line" })
-				map("n", "<leader>hd", gs.diffthis, { desc = "git diff against index" })
-				map("n", "<leader>hD", function()
+				map("n", "<leader>ghd", gs.diffthis, { desc = "git diff against index" })
+				map("n", "<leader>ghD", function()
 					gs.diffthis("~")
 				end, { desc = "git diff against last commit" })
 				-- Toggles
-				map("n", "<leader>tb", gs.toggle_current_line_blame, { desc = "toggle git blame line" })
-				map("n", "<leader>td", gs.toggle_deleted, { desc = "toggle git show deleted" })
+				map("n", "<leader>gb", gs.toggle_current_line_blame, { desc = "toggle git blame line" })
+				map("n", "<leader>gtd", gs.toggle_deleted, { desc = "toggle git show deleted" })
 				-- Text object
 				map({ "o", "x" }, "ih", ":<C-U>Gitsigns select_hunk<CR>", { desc = "select git hunk" })
 			end,
@@ -231,6 +234,8 @@ require("lazy").setup({
 		branch = "0.1.x",
 		dependencies = {
 			"nvim-lua/plenary.nvim",
+      'nvim-telescope/telescope-file-browser.nvim',
+      'nvim-telescope/telescope-ui-select.nvim',
 			{
 				"nvim-telescope/telescope-fzf-native.nvim",
 				build = "make",
@@ -254,14 +259,33 @@ require("lazy").setup({
 					},
 				},
 				-- pickers = {}
-				extensions = {
-					["ui-select"] = {
-						require("telescope.themes").get_dropdown(),
-					},
-				},
+        extensions = {
+          ['ui-select'] = {
+            require('telescope.themes').get_dropdown(),
+          },
+          file_browser = {
+            theme = 'ivy',
+            hidden = true,
+            layout_strategy = 'bottom_pane',
+            layout_config = { height = 40 },
+            prompt_title = 'File browser',
+            cwd_to_path = true,
+            prompt_path = true,
+            -- depth = 2, -- shows two dirs deeper
+            -- previewer = false, -- turn off the previewer
+            use_fd = true, -- disables netrw and use telescope-file-browser instead
+            hijack_netrw = true,
+            initial_mode = 'normal',
+            prompt_prefix = '> ',
+            mappings = { ['i'] = {}, ['n'] = {} },
+          },
+        },
 			})
 
-			pcall(require("telescope").load_extension, "fzf")
+       -- Enable Telescope extensions if they are installed
+      pcall(require('telescope').load_extension, 'fzf')
+      pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'file_browser')
 
 			local builtin = require("telescope.builtin")
 			vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
@@ -324,8 +348,8 @@ require("lazy").setup({
 						require("telescope.builtin").lsp_dynamic_workspace_symbols,
 						"[W]orkspace [S]ymbols"
 					)
-					map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-					map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
+					map("<leader>lrn", vim.lsp.buf.rename, "[R]e[n]ame")
+					map("<leader>lca", vim.lsp.buf.code_action, "[C]ode [A]ction")
 					map("K", vim.lsp.buf.hover, "Hover Documentation")
 					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
@@ -492,6 +516,20 @@ require("lazy").setup({
 		dependencies = { "nvim-lua/plenary.nvim" },
 		opts = { signs = false },
 	},
+  {
+		"numToStr/Comment.nvim",
+		opts = {},
+		config = function()
+			vim.keymap.set("n", "<leader>/", function()
+				require("Comment.api").toggle.linewise.count(vim.v.count > 0 and vim.v.count or 1)
+			end, { desc = "Comment this line" })
+			vim.keymap.set(
+				"v",
+				"<leader>/",
+				"<esc><cmd>lua require('Comment.api').toggle.linewise(vim.fn.visualmode())<cr>"
+			)
+		end,
+	},
 	{
 		"echasnovski/mini.nvim",
     init = function()
@@ -528,14 +566,14 @@ require("lazy").setup({
         skip_unbalanced = true,
         markdown = true,
       })
-			require('mini.comment').setup({
-				mappings = {
-					comment = '',      -- Disable 'gc' operator
-					comment_line = '', -- Disable 'gcc' line comment
-				},
-			})
-			vim.keymap.set('n', '<leader>/', function() require('mini.comment').toggle_lines(vim.api.nvim_win_get_cursor(0)[1], vim.api.nvim_win_get_cursor(0)[1]) end)
-			vim.keymap.set('v', '<leader>/', require('mini.comment').operator())
+			-- require('mini.comment').setup({
+			-- 	mappings = {
+			-- 		comment = '',      -- Disable 'gc' operator
+			-- 		comment_line = '', -- Disable 'gcc' line comment
+			-- 	},
+			-- })
+			-- vim.keymap.set('n', '<leader>/', function() require('mini.comment').toggle_lines(vim.api.nvim_win_get_cursor(0)[1], vim.api.nvim_win_get_cursor(0)[1]) end)
+			-- vim.keymap.set('v', '<leader>/', require('mini.comment').operator())
 			require("mini.indentscope").setup({
 				draw = {
 					animation = require('mini.indentscope').gen_animation.none(),
@@ -557,87 +595,107 @@ require("lazy").setup({
       require("nvim-surround").setup({})
     end
   },
-  {
-		"nvim-neo-tree/neo-tree.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-			"MunifTanjim/nui.nvim",
-		},
-    cmd = "Neotree",
-    keys = {
-      -- { "<leader>e", "<Cmd>Neotree reveal toggle=true<CR>"},
-      { "<leader>e",
-        function()
-          require("neo-tree.command").execute({ toggle = true, dir = vim.uv.cwd() })
-        end,
-      },
-      {
-        "<leader>ge",
-        function()
-          require("neo-tree.command").execute({ source = "git_status", toggle = true, position = 'float' })
-        end,
-        desc = "Git Explorer",
-      },
-      {
-        "<leader>be",
-        function()
-          require("neo-tree.command").execute({ source = "buffers", toggle = true })
-        end,
-        desc = "Buffer Explorer",
-      },
-    },
-    init = function()
-      vim.api.nvim_create_autocmd("BufEnter", {
-        group = vim.api.nvim_create_augroup("Neotree_start_directory", { clear = true }),
-        desc = "Start Neo-tree with directory",
-        once = true,
-        callback = function()
-          if package.loaded["neo-tree"] then
-            return
-          else
-            local stats = vim.uv.fs_stat(vim.fn.argv(0))
-            if stats and stats.type == "directory" then
-              require("neo-tree")
-            end
-          end
-        end,
-      })
-    end,
-    opts = {
-      sources = { "filesystem", "buffers", "git_status" },
-      open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
-      filesystem = {
-        bind_to_cwd = false,
-        follow_current_file = { enabled = true },
-        use_libuv_file_watcher = true,
-        filtered_items = {
-          visible = true,
-          hide_dotfiles = false,
-          hide_gitignored = false,
-          hide_hidden = false,
-        },
-      },
-      window = {
-        mappings = {
-          ["l"] = "open",
-          ["h"] = "close_node",
-          ["<C-v>"] = "open_vsplit",
-          ["<C-h>"] = "open_split",
-          ["<space>"] = "none",
-          ["Y"] = {
-            function(state)
-              local node = state.tree:get_node()
-              local path = node:get_id()
-              vim.fn.setreg("+", path, "c")
-            end,
-            desc = "Copy Path to Clipboard",
-          },
-          ["P"] = { "toggle_preview", config = { use_float = false } },
-        },
-      },
-    },
-  },
+  -- {
+		-- "nvim-neo-tree/neo-tree.nvim",
+		-- dependencies = {
+		-- 	"nvim-lua/plenary.nvim",
+		-- 	"nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
+		-- 	"MunifTanjim/nui.nvim",
+		-- },
+  --   cmd = "Neotree",
+  --   keys = {
+  --     -- { "<leader>e", "<Cmd>Neotree reveal toggle=true<CR>"},
+  --     { "<leader>e",
+  --       function()
+  --         require("neo-tree.command").execute({ toggle = true, dir = vim.uv.cwd() })
+  --       end,
+  --     },
+  --     {
+  --       "<leader>ge",
+  --       function()
+  --         require("neo-tree.command").execute({ source = "git_status", toggle = true, position = 'float' })
+  --       end,
+  --       desc = "Git Explorer",
+  --     },
+  --     {
+  --       "<leader>be",
+  --       function()
+  --         require("neo-tree.command").execute({ source = "buffers", toggle = true })
+  --       end,
+  --       desc = "Buffer Explorer",
+  --     },
+  --     {
+  --       "<Esc>",
+  --       function()
+  --         require("neo-tree.command").execute({ action = "close" })
+  --       end,
+  --       desc = "Close Explorer",
+  --     },
+  --   },
+  --   init = function()
+  --     vim.api.nvim_create_autocmd("BufEnter", {
+  --       group = vim.api.nvim_create_augroup("Neotree_start_directory", { clear = true }),
+  --       desc = "Start Neo-tree with directory",
+  --       once = true,
+  --       callback = function()
+  --         if package.loaded["neo-tree"] then
+  --           return
+  --         else
+  --           local stats = vim.uv.fs_stat(vim.fn.argv(0))
+  --           if stats and stats.type == "directory" then
+  --             require("neo-tree")
+  --           end
+  --         end
+  --       end,
+  --     })
+  --   end,
+  --   opts = {
+  --     sources = { "filesystem", "buffers", "git_status" },
+  --     open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
+  --     filesystem = {
+  --       bind_to_cwd = false,
+  --       follow_current_file = { enabled = true },
+  --       use_libuv_file_watcher = true,
+  --       filtered_items = {
+  --         visible = true,
+  --         hide_dotfiles = false,
+  --         hide_gitignored = false,
+  --         hide_hidden = false,
+  --       },
+  --     },
+  --     event_handlers = {
+  --       {
+  --         event = "file_open_requested",
+  --         handler = function()
+  --           -- auto close
+  --           require("neo-tree.command").execute({ action = "close" })
+  --         end
+  --       },
+  --     },
+  --     window = {
+  --       position = "bottom", -- left, right, top, bottom, float, current
+  --       -- width = 40, -- applies to left and right positions
+  --       height = 40, -- applies to top and bottom positions
+  --       -- auto_expand_width = false, -- expand the window when file
+  --       mappings = {
+  --         ["l"] = "open",
+  --         ["h"] = "close_node",
+  --         ["<C-v>"] = "open_vsplit",
+  --         ["<C-h>"] = "open_split",
+  --         ["<space>"] = "none",
+  --         ["Y"] = {
+  --           function(state)
+  --             local node = state.tree:get_node()
+  --             local path = node:get_id()
+  --             vim.fn.setreg("+", path, "c")
+  --           end,
+  --           desc = "Copy Path to Clipboard",
+  --         },
+  --         ["P"] = { "toggle_preview", config = { use_float = false } },
+  --       },
+  --     },
+  --   },
+  -- },
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
