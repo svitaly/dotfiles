@@ -122,7 +122,8 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	end,
 })
 
--- [[ Install `lazy.nvim` plugin manager ]] See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
+-- [[ Install `lazy.nvim` plugin manager ]]
+-- See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
 	local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -243,6 +244,10 @@ require("lazy").setup({
 					return vim.fn.executable("make") == 1
 				end,
 			},
+      { -- used for rg arguments
+        "nvim-telescope/telescope-live-grep-args.nvim" ,
+        version = "^1.0.0",
+      },
 			{ "nvim-tree/nvim-web-devicons", enabled = vim.g.have_nerd_font },
 		},
 		config = function()
@@ -273,7 +278,7 @@ require("lazy").setup({
             prompt_path = true,
             -- depth = 2, -- shows two dirs deeper
             -- previewer = false, -- turn off the previewer
-            use_fd = true, -- disables netrw and use telescope-file-browser instead
+            use_fd = true, -- install FD first!
             hijack_netrw = true,
             initial_mode = 'normal',
             prompt_prefix = '> ',
@@ -282,10 +287,11 @@ require("lazy").setup({
         },
 			})
 
-       -- Enable Telescope extensions if they are installed
+       -- Enable Telescope extensions if they are installed  
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
       pcall(require('telescope').load_extension, 'file_browser')
+      pcall(require('telescope').load_extension, 'live_grep_args')
 
 			local builtin = require("telescope.builtin")
 			vim.keymap.set("n", "<leader>sh", builtin.help_tags, { desc = "[S]earch [H]elp" })
@@ -294,10 +300,11 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>sf", builtin.git_files, { desc = "[S]earch Git [F]iles" })
 			vim.keymap.set("n", "<leader>ss", builtin.builtin, { desc = "[S]earch [S]elect Telescope" })
 			vim.keymap.set("n", "<leader>sw", builtin.grep_string, { desc = "[S]earch current [W]ord" })
-			vim.keymap.set("n", "<leader>sg", builtin.live_grep, { desc = "[S]earch by [G]rep" })
+			vim.keymap.set("n", "<leader>sg", require("telescope").extensions.live_grep_args.live_grep_args, { desc = "[S]earch by [G]rep" })
 			vim.keymap.set("n", "<leader>sd", builtin.diagnostics, { desc = "[S]earch [D]iagnostics" })
 			vim.keymap.set("n", "<leader>sr", builtin.resume, { desc = "[S]earch [R]esume" })
 			vim.keymap.set("n", "<leader>s.", builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
+			vim.keymap.set("n", "<leader>sm", builtin.marks, { desc = '[S]earch [M]arks' })
 			vim.keymap.set("n", "<leader><leader>", builtin.buffers, { desc = "[ ] Find existing buffers" })
 
 			-- Slightly advanced example of overriding default behavior and theme
@@ -325,6 +332,7 @@ require("lazy").setup({
 	{ -- LSP Configuration & Plugins
 		"neovim/nvim-lspconfig",
 		dependencies = {
+      "saghen/blink.cmp",
 			"williamboman/mason.nvim",
 			"williamboman/mason-lspconfig.nvim",
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -332,6 +340,10 @@ require("lazy").setup({
 			{ "folke/neodev.nvim", opts = {} },
 		},
 		config = function()
+
+      local capabilities = require('blink.cmp').get_lsp_capabilities()
+      require('lspconfig').lua_ls.setup { capabilities = capabilities }
+
 			vim.api.nvim_create_autocmd("LspAttach", {
 				group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
 				callback = function(event)
@@ -367,9 +379,6 @@ require("lazy").setup({
 					end
 				end,
 			})
-
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
 			local servers = {
 				-- clangd = {},
@@ -412,96 +421,6 @@ require("lazy").setup({
 			})
 		end,
 	},
-	{ -- Autocompletion
-		"hrsh7th/nvim-cmp",
-		event = "InsertEnter",
-		dependencies = {
-			{
-				"L3MON4D3/LuaSnip",
-				build = (function()
-					if vim.fn.has("win32") == 1 or vim.fn.executable("make") == 0 then
-						return
-					end
-					return "make install_jsregexp"
-				end)(),
-				dependencies = {},
-			},
-			"saadparwaiz1/cmp_luasnip",
-			"hrsh7th/cmp-nvim-lsp",
-			"hrsh7th/cmp-path",
-		},
-		config = function()
-			local cmp = require("cmp")
-			local luasnip = require("luasnip")
-			luasnip.config.setup({})
-
-			cmp.setup({
-				snippet = {
-					expand = function(args)
-						luasnip.lsp_expand(args.body)
-					end,
-				},
-				completion = { completeopt = "menu,menuone,noinsert" },
-				mapping = cmp.mapping.preset.insert({
-					["<C-j>"] = cmp.mapping.select_next_item(),
-					["<C-k>"] = cmp.mapping.select_prev_item(),
-					["<C-n>"] = cmp.mapping.select_next_item(),
-					["<C-p>"] = cmp.mapping.select_prev_item(),
-
-					["<C-b>"] = cmp.mapping.scroll_docs(-4),
-					["<C-f>"] = cmp.mapping.scroll_docs(4),
-
-					["<C-y>"] = cmp.mapping.confirm({ select = true }),
-
-					["<C-Space>"] = cmp.mapping.complete({}),
-
-					["<C-l>"] = cmp.mapping(function()
-						if luasnip.expand_or_locally_jumpable() then
-							luasnip.expand_or_jump()
-						end
-					end, { "i", "s" }),
-					["<C-h>"] = cmp.mapping(function()
-						if luasnip.locally_jumpable(-1) then
-							luasnip.jump(-1)
-						end
-					end, { "i", "s" }),
-					["<CR>"] = cmp.mapping.confirm({ select = false }),
-					["<Tab>"] = cmp.mapping(function(fallback)
-						if cmp.visible() then
-							cmp.select_next_item()
-						elseif luasnip.expand_or_locally_jumpable() then
-							luasnip.expand_or_jump()
-						else
-							fallback()
-						end
-					end, { "i", "s" }),
-					["<S-Tab>"] = cmp.mapping(function(fallback)
-						if cmp.visible() then
-							cmp.select_prev_item()
-						elseif luasnip.locally_jumpable(-1) then
-							luasnip.jump(-1)
-						else
-							fallback()
-						end
-					end, { "i", "s" }),
-
-				}),
-				sources = {
-					{ name = "nvim_lsp" },
-					{ name = "luasnip" },
-					{ name = "path" },
-				},
-			})
-		end,
-	},
-	-- {
-	-- 	"folke/tokyonight.nvim",
-	-- 	priority = 1000, -- Make sure to load this before all the other start plugins.
-	-- 	init = function()
-	-- 		vim.cmd.colorscheme("tokyonight-night")
-	-- 		vim.cmd.hi("Comment gui=none")
-	-- 	end,
-	-- },
 	{
 		"projekt0n/github-nvim-theme",
 		priority = 1000,
@@ -559,21 +478,6 @@ require("lazy").setup({
 			--  - yinq - [Y]ank [I]nside [N]ext [']quote
 			--  - ci'  - [C]hange [I]nside [']quote
 			require("mini.ai").setup({ n_lines = 500 })
-      require("mini.pairs").setup({
-        modes = { insert = true, command = true, terminal = false },
-        skip_next = [=[[%w%%%'%[%"%.%`%$]]=],
-        skip_ts = { "string" },
-        skip_unbalanced = true,
-        markdown = true,
-      })
-			-- require('mini.comment').setup({
-			-- 	mappings = {
-			-- 		comment = '',      -- Disable 'gc' operator
-			-- 		comment_line = '', -- Disable 'gcc' line comment
-			-- 	},
-			-- })
-			-- vim.keymap.set('n', '<leader>/', function() require('mini.comment').toggle_lines(vim.api.nvim_win_get_cursor(0)[1], vim.api.nvim_win_get_cursor(0)[1]) end)
-			-- vim.keymap.set('v', '<leader>/', require('mini.comment').operator())
 			require("mini.indentscope").setup({
 				draw = {
 					animation = require('mini.indentscope').gen_animation.none(),
@@ -595,107 +499,6 @@ require("lazy").setup({
       require("nvim-surround").setup({})
     end
   },
-  -- {
-		-- "nvim-neo-tree/neo-tree.nvim",
-		-- dependencies = {
-		-- 	"nvim-lua/plenary.nvim",
-		-- 	"nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-		-- 	"MunifTanjim/nui.nvim",
-		-- },
-  --   cmd = "Neotree",
-  --   keys = {
-  --     -- { "<leader>e", "<Cmd>Neotree reveal toggle=true<CR>"},
-  --     { "<leader>e",
-  --       function()
-  --         require("neo-tree.command").execute({ toggle = true, dir = vim.uv.cwd() })
-  --       end,
-  --     },
-  --     {
-  --       "<leader>ge",
-  --       function()
-  --         require("neo-tree.command").execute({ source = "git_status", toggle = true, position = 'float' })
-  --       end,
-  --       desc = "Git Explorer",
-  --     },
-  --     {
-  --       "<leader>be",
-  --       function()
-  --         require("neo-tree.command").execute({ source = "buffers", toggle = true })
-  --       end,
-  --       desc = "Buffer Explorer",
-  --     },
-  --     {
-  --       "<Esc>",
-  --       function()
-  --         require("neo-tree.command").execute({ action = "close" })
-  --       end,
-  --       desc = "Close Explorer",
-  --     },
-  --   },
-  --   init = function()
-  --     vim.api.nvim_create_autocmd("BufEnter", {
-  --       group = vim.api.nvim_create_augroup("Neotree_start_directory", { clear = true }),
-  --       desc = "Start Neo-tree with directory",
-  --       once = true,
-  --       callback = function()
-  --         if package.loaded["neo-tree"] then
-  --           return
-  --         else
-  --           local stats = vim.uv.fs_stat(vim.fn.argv(0))
-  --           if stats and stats.type == "directory" then
-  --             require("neo-tree")
-  --           end
-  --         end
-  --       end,
-  --     })
-  --   end,
-  --   opts = {
-  --     sources = { "filesystem", "buffers", "git_status" },
-  --     open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
-  --     filesystem = {
-  --       bind_to_cwd = false,
-  --       follow_current_file = { enabled = true },
-  --       use_libuv_file_watcher = true,
-  --       filtered_items = {
-  --         visible = true,
-  --         hide_dotfiles = false,
-  --         hide_gitignored = false,
-  --         hide_hidden = false,
-  --       },
-  --     },
-  --     event_handlers = {
-  --       {
-  --         event = "file_open_requested",
-  --         handler = function()
-  --           -- auto close
-  --           require("neo-tree.command").execute({ action = "close" })
-  --         end
-  --       },
-  --     },
-  --     window = {
-  --       position = "bottom", -- left, right, top, bottom, float, current
-  --       -- width = 40, -- applies to left and right positions
-  --       height = 40, -- applies to top and bottom positions
-  --       -- auto_expand_width = false, -- expand the window when file
-  --       mappings = {
-  --         ["l"] = "open",
-  --         ["h"] = "close_node",
-  --         ["<C-v>"] = "open_vsplit",
-  --         ["<C-h>"] = "open_split",
-  --         ["<space>"] = "none",
-  --         ["Y"] = {
-  --           function(state)
-  --             local node = state.tree:get_node()
-  --             local path = node:get_id()
-  --             vim.fn.setreg("+", path, "c")
-  --           end,
-  --           desc = "Copy Path to Clipboard",
-  --         },
-  --         ["P"] = { "toggle_preview", config = { use_float = false } },
-  --       },
-  --     },
-  --   },
-  -- },
 	{ -- Highlight, edit, and navigate code
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
@@ -725,69 +528,38 @@ require("lazy").setup({
 		config = function(_, opts)
 			require("nvim-treesitter.configs").setup(opts)
 		end,
-	},
+  },
   {
-  "yetone/avante.nvim",
-  event = "VeryLazy",
-  lazy = false,
-  version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
-  opts = {
-    -- add any opts here
-    -- for example
-    provider = "claude",
-    -- openai = {
-    --   endpoint = "https://api.deepseek.com/v1",
-    --   model = "deepseek-chat", -- your desired model (or use gpt-4o, etc.)
-    --   timeout = 30000, -- timeout in milliseconds
-    --   temperature = 0, -- adjust if needed
-    --   max_tokens = 4096,
-    --   reasoning_effort = "high" -- only supported for "o" models
-    -- },
-    claude = {
-      endpoint = "https://api.anthropic.com",
-      model = "claude-3-5-sonnet-20241022",
-      temperature = 0,
-      max_tokens = 4096,
-    }
+    "chentoast/marks.nvim",
+    event = "VeryLazy",
+    opts = {},
   },
-  -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-  build = "make",
-  -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
-  dependencies = {
-    "stevearc/dressing.nvim",
-    "nvim-lua/plenary.nvim",
-    "MunifTanjim/nui.nvim",
-    --- The below dependencies are optional,
-    "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-    "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
-    "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-    "zbirenbaum/copilot.lua", -- for providers='copilot'
-    {
-      -- support for image pasting
-      "HakonHarnes/img-clip.nvim",
-      event = "VeryLazy",
-      opts = {
-        -- recommended settings
-        default = {
-          embed_image_as_base64 = false,
-          prompt_for_file_name = false,
-          drag_and_drop = {
-            insert_mode = true,
-          },
-          -- required for Windows users
-          use_absolute_path = true,
-        },
-      },
-    },
-    {
-      -- Make sure to set this up properly if you have lazy=true
-      'MeanderingProgrammer/render-markdown.nvim',
-      opts = {
-        file_types = { "markdown", "Avante" },
-      },
-      ft = { "markdown", "Avante" },
-    },
-  },
-}
+  {
+    'saghen/blink.cmp',
+    dependencies = { 'rafamadriz/friendly-snippets' },
+    version = '1.*',
 
+    opts = {
+      -- See :h blink-cmp-config-keymap for defining your own keymap
+      keymap = {
+        preset = 'default',
+        ["<C-j>"] = {'select_next', 'fallback'},
+        ["<C-k>"] = {'select_prev', 'fallback'},
+        ["<Tab>"] = {'select_next', 'fallback'},
+        ["<S-Tab>"] = {'select_prev', 'fallback'},
+      },
+      appearance = {
+        nerd_font_variant = 'mono'
+      },
+      -- (Default) Only show the documentation popup when manually triggered
+      completion = { documentation = { auto_show = false } },
+      -- Default list of enabled providers defined so that you can extend it
+      -- elsewhere in your config, without redefining it, due to `opts_extend`
+      sources = {
+        default = { 'lsp', 'path', 'snippets', 'buffer' },
+      },
+      fuzzy = { implementation = "prefer_rust_with_warning" }
+    },
+    opts_extend = { "sources.default" }
+  }
 })
