@@ -35,27 +35,43 @@ vim.opt.softtabstop = 2
 vim.opt.expandtab = true
 vim.opt.textwidth = 80
 
+vim.opt.completeopt = "menuone,noinsert,noselect" -- fuzzy completion
+vim.opt.shortmess = vim.opt.shortmess + "c" -- not sure yet
+
 vim.diagnostic.config({
   signs = {
     text = {
-      [vim.diagnostic.severity.ERROR] = " ",
-      [vim.diagnostic.severity.WARN] = " ",
-      [vim.diagnostic.severity.INFO] = " ",
-      [vim.diagnostic.severity.HINT] = " ",
+      [vim.diagnostic.severity.ERROR] = "E",
+      [vim.diagnostic.severity.WARN] = "W",
+      [vim.diagnostic.severity.INFO] = "I",
+      [vim.diagnostic.severity.HINT] = "H",
     },
   },
-  virtual_text = true, -- show inline diagnostics
+  update_in_insert = true,
+  -- virtual_text = {
+  --   virt_text_pos = 'eol_right_align' - shows diagnostic at eol
+  -- },
+  -- virtual_lines = true, -- shows more lines with diagnostics
+  float = {
+    border = "rounded",
+    header = '⛑ -> Diagnostics',
+    severity_sort = true,
+    source = true,
+  } -- shows diagnostic in a float on hover
 })
+-- NOTE: next two lines are nessesary for the float on hover to work
+vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus = false})]]
+vim.cmd [[autocmd! ColorScheme * highlight FloatBorder guifg=#FFA500 guibg=NONE]]
 
 vim.keymap.set("n", "<leader>h", "<cmd>nohlsearch<CR>") -- clear search highlights
 
 -- NOTE: set wrap for MARKDOWN
 local md_group = vim.api.nvim_create_augroup("Markdown wrap settings", { clear = true })
 vim.api.nvim_create_autocmd("BufEnter", {
-        pattern = { "*.md" },
-        group = md_group,
-        command = "setlocal wrap",
-        -- also probably add :set textwidth=80
+  pattern = { "*.md" },
+  group = md_group,
+  command = "setlocal wrap",
+  -- also probably add :set textwidth=80
 })
 -- Keymaps for better default experience See `:help vim.keymap.set()`
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
@@ -79,18 +95,18 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 -- [[ Force set indent ]]
 local function set_indent()
-        local input_avail, input = pcall(vim.fn.input, "Set indent value (>0 expandtab, <=0 noexpandtab): ")
-        if input_avail then
-                local indent = tonumber(input)
-                if not indent or indent == 0 then
-                        return
-                end
-                vim.bo.expandtab = (indent > 0) -- local to buffer
-                indent = math.abs(indent)
-                vim.bo.tabstop = indent -- local to buffer
-                vim.bo.softtabstop = indent -- local to buffer
-                vim.bo.shiftwidth = indent -- local to buffer
-        end
+  local input_avail, input = pcall(vim.fn.input, "Set indent value (>0 expandtab, <=0 noexpandtab): ")
+  if input_avail then
+    local indent = tonumber(input)
+    if not indent or indent == 0 then
+      return
+    end
+    vim.bo.expandtab = (indent > 0) -- local to buffer
+    indent = math.abs(indent)
+    vim.bo.tabstop = indent -- local to buffer
+    vim.bo.softtabstop = indent -- local to buffer
+    vim.bo.shiftwidth = indent -- local to buffer
+  end
 end
 vim.keymap.set("n", "<leader>ui", set_indent)
 
@@ -263,7 +279,6 @@ require("blink.cmp").setup({
 })
 
 -- INFO: lsp server installation and configuration
-
 -- lsp servers we want to use and their configuration
 -- see `:h lspconfig-all` for available servers and their settings
 local lsp_servers = {
@@ -338,8 +353,6 @@ vim.pack.add({
   "https://github.com/nvim-telescope/telescope-live-grep-args.nvim" ,
 }, { confirm = false })
  -- Enable Telescope extensions if they are installed
-
-
 local actions = require("telescope.actions")
 require("telescope").setup({
   defaults = {
@@ -362,16 +375,19 @@ require("telescope").setup({
       hidden = true,
       layout_strategy = 'bottom_pane',
       layout_config = { height = 40 },
-      prompt_title = 'File browser',
+      previewer = false, -- Turn off the previewer
+      follow_symlinks = true, -- Shows soft links
+      prompt_title = 'Opened: ' .. vim.loop.cwd(),
       cwd_to_path = true,
       prompt_path = true,
+      depth = 1, -- shows two dirs deeper
       -- depth = 2, -- shows two dirs deeper
-      -- previewer = false, -- turn off the previewer
       use_fd = true, -- install FD first!
       hijack_netrw = true,
       initial_mode = 'normal',
       prompt_prefix = '> ',
       mappings = { ['i'] = {}, ['n'] = {} },
+      use_ui_input = false
     },
   },
 })
@@ -423,7 +439,7 @@ end, { desc = "[S]earch [N]eovim files" })
 -- INFO: better statusline
 vim.pack.add({ "https://github.com/nvim-lualine/lualine.nvim" }, { confirm = false })
 
-require('lualine').setup {
+require('lualine').setup{
   options = {
     icons_enabled = true,
     theme = 'auto',
@@ -457,17 +473,17 @@ require('lualine').setup {
     }
   },
   sections = {
-    lualine_a = {'mode'},
-    lualine_b = {'branch', 'diff', 'diagnostics'},
-    lualine_c = { { 'filename', path = 2 } },
-    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_a = {{ 'mode', fmt = function(str) return str:sub(1,1) end }},
+    lualine_b = {'branch', 'diagnostics'},
+    lualine_c = { { 'filename', path = 0 } },
+    lualine_x = {'filetype'},
     lualine_y = {'progress'},
     lualine_z = {'location'}
   },
   inactive_sections = {
     lualine_a = {},
     lualine_b = {},
-    lualine_c = { { 'filename', path = 2 } },
+    lualine_c = { { 'filename', path = 0 } },
     lualine_x = {'location'},
     lualine_y = {},
     lualine_z = {}
