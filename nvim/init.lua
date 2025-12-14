@@ -31,6 +31,7 @@ vim.opt.wrap = false
 -- formatting
 vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
+vim.opt.softtabstop = 2
 vim.opt.expandtab = true
 vim.opt.textwidth = 80
 
@@ -51,10 +52,10 @@ vim.keymap.set("n", "<leader>h", "<cmd>nohlsearch<CR>") -- clear search highligh
 -- NOTE: set wrap for MARKDOWN
 local md_group = vim.api.nvim_create_augroup("Markdown wrap settings", { clear = true })
 vim.api.nvim_create_autocmd("BufEnter", {
-	pattern = { "*.md" },
-	group = md_group,
-	command = "setlocal wrap",
-	-- also probably add :set textwidth=80
+        pattern = { "*.md" },
+        group = md_group,
+        command = "setlocal wrap",
+        -- also probably add :set textwidth=80
 })
 -- Keymaps for better default experience See `:help vim.keymap.set()`
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
@@ -78,18 +79,18 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 -- [[ Force set indent ]]
 local function set_indent()
-	local input_avail, input = pcall(vim.fn.input, "Set indent value (>0 expandtab, <=0 noexpandtab): ")
-	if input_avail then
-		local indent = tonumber(input)
-		if not indent or indent == 0 then
-			return
-		end
-		vim.bo.expandtab = (indent > 0) -- local to buffer
-		indent = math.abs(indent)
-		vim.bo.tabstop = indent -- local to buffer
-		vim.bo.softtabstop = indent -- local to buffer
-		vim.bo.shiftwidth = indent -- local to buffer
-	end
+        local input_avail, input = pcall(vim.fn.input, "Set indent value (>0 expandtab, <=0 noexpandtab): ")
+        if input_avail then
+                local indent = tonumber(input)
+                if not indent or indent == 0 then
+                        return
+                end
+                vim.bo.expandtab = (indent > 0) -- local to buffer
+                indent = math.abs(indent)
+                vim.bo.tabstop = indent -- local to buffer
+                vim.bo.softtabstop = indent -- local to buffer
+                vim.bo.shiftwidth = indent -- local to buffer
+        end
 end
 vim.keymap.set("n", "<leader>ui", set_indent)
 
@@ -115,11 +116,11 @@ vim.keymap.set("n", "<C-k>", "<cmd> TmuxNavigateUp<CR>", { desc = "Move focus to
 
 -- Highlight when yanking (copying) text
 vim.api.nvim_create_autocmd("TextYankPost", {
-	desc = "Highlight when yanking (copying) text",
-	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
-	callback = function()
-		vim.highlight.on_yank()
-	end,
+        desc = "Highlight when yanking (copying) text",
+        group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
+        callback = function()
+                vim.highlight.on_yank()
+        end,
 })
 
 -- INFO: [[ PLUGINS START ]] (`gx` to open a link)
@@ -150,13 +151,14 @@ require("nvim-treesitter.configs").setup({
   highlight = {
     enable = true,
   },
+  indent = { enable = true },
 })
 
 vim.pack.add({ "https://github.com/tpope/vim-fugitive" }, { confirm = false })
 vim.keymap.set("n", "<leader>gs", vim.cmd.Git)
 vim.pack.add({"https://github.com/christoomey/vim-tmux-navigator" }, { confirm = false })
-
 vim.pack.add({"https://github.com/lewis6991/gitsigns.nvim" }, { confirm = false })
+
 require("gitsigns").setup({
   signs = {
     add = { text = "+" },
@@ -267,13 +269,27 @@ require("blink.cmp").setup({
 local lsp_servers = {
   lua_ls = {
     -- https://luals.github.io/wiki/settings/ | `:h nvim_get_runtime_file`
-    Lua = { workspace = { library = vim.api.nvim_get_runtime_file("lua", true) }, },
+    settings = {
+      Lua = { workspace = { library = vim.api.nvim_get_runtime_file("lua", true) }, },
+    }
   },
-  clangd = {},
-  rust_analyzer = {},
-  eslint = {}
+  eslint = {
+    workspace_required = false,   -- ← critical line
+    settings = {
+      workingDirectories = { mode = "auto" },
+    },
+    single_file_support = true,
+    root_dir = function()
+      return vim.uv.cwd()   -- always use current working directory as root
+    end,
+    init_options = {
+      nodePath = vim.uv.cwd() .. "/node_modules",
+    },
+  },
 }
 
+-- show debug logs for LSP
+-- vim.lsp.log.set_level(vim.log.levels.DEBUG)
 vim.pack.add({
   "https://github.com/neovim/nvim-lspconfig", -- default configs for lsps
   "https://github.com/mason-org/mason.nvim",                     -- package manager
@@ -291,18 +307,21 @@ require("mason-tool-installer").setup({
 -- to check what clients are attached to the current buffer, use
 -- `:checkhealth vim.lsp`. to view default lsp keybindings, use `:h lsp-defaults`.
 for server, config in pairs(lsp_servers) do
-  vim.lsp.config(server, {
-    settings = config,
-
-    -- only create the keymaps if the server attaches successfully
-    on_attach = function(_, bufnr)
-      vim.keymap.set("n", "grd", vim.lsp.buf.definition,
-        { buffer = bufnr, desc = "vim.lsp.buf.definition()", })
-
-      vim.keymap.set("n", "<leader>f", vim.lsp.buf.format,
-        { buffer = bufnr, desc = "LSP: [F]ormat Document", })
-    end,
-  })
+  vim.lsp.config(server, config)
+  -- vim.lsp.config(server, {
+  --   settings = config,
+  --   workspace_required = config.workspace_required,
+  --   single_file_support = config.single_file_support,
+  --
+  --   -- only create the keymaps if the server attaches successfully
+  --   on_attach = function(_, bufnr)
+  --     vim.keymap.set("n", "grd", vim.lsp.buf.definition,
+  --       { buffer = bufnr, desc = "vim.lsp.buf.definition()", })
+  --
+  --     vim.keymap.set("n", "<leader>f", vim.lsp.buf.format,
+  --       { buffer = bufnr, desc = "LSP: [F]ormat Document", })
+  --   end,
+  -- })
 end
 
 -- NOTE: if all you want is lsp + completion + highlighting, you're done.
@@ -318,7 +337,7 @@ vim.pack.add({
   "https://github.com/nvim-telescope/telescope-ui-select.nvim",
   "https://github.com/nvim-telescope/telescope-live-grep-args.nvim" ,
 }, { confirm = false })
- -- Enable Telescope extensions if they are installed  
+ -- Enable Telescope extensions if they are installed
 
 
 local actions = require("telescope.actions")
@@ -404,12 +423,60 @@ end, { desc = "[S]earch [N]eovim files" })
 -- INFO: better statusline
 vim.pack.add({ "https://github.com/nvim-lualine/lualine.nvim" }, { confirm = false })
 
-require("lualine").setup({
+require('lualine').setup {
   options = {
-    section_separators = { left = "", right = "", },
-    component_separators = { left = "", right = "", },
+    icons_enabled = true,
+    theme = 'auto',
+    component_separators = { left = '', right = ''},
+    section_separators = { left = '', right = ''},
+    disabled_filetypes = {
+      statusline = {},
+      winbar = {},
+    },
+    ignore_focus = {},
+    always_divide_middle = true,
+    always_show_tabline = true,
+    globalstatus = false,
+    refresh = {
+      statusline = 1000,
+      tabline = 1000,
+      winbar = 1000,
+      refresh_time = 16, -- ~60fps
+      events = {
+        'WinEnter',
+        'BufEnter',
+        'BufWritePost',
+        'SessionLoadPost',
+        'FileChangedShellPost',
+        'VimResized',
+        'Filetype',
+        'CursorMoved',
+        'CursorMovedI',
+        'ModeChanged',
+      },
+    }
   },
-})
+  sections = {
+    lualine_a = {'mode'},
+    lualine_b = {'branch', 'diff', 'diagnostics'},
+    lualine_c = { { 'filename', path = 2 } },
+    lualine_x = {'encoding', 'fileformat', 'filetype'},
+    lualine_y = {'progress'},
+    lualine_z = {'location'}
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = { { 'filename', path = 2 } },
+    lualine_x = {'location'},
+    lualine_y = {},
+    lualine_z = {}
+  },
+  tabline = {},
+  winbar = {},
+  inactive_winbar = {},
+  extensions = {}
+}
 
 -- INFO: keybinding helper
 vim.pack.add({ "https://github.com/folke/which-key.nvim" }, { confirm = false })
@@ -430,18 +497,18 @@ require("which-key").setup({
 
 -- INFO: utility plugins
 vim.pack.add({
-  "https://github.com/windwp/nvim-autopairs",    -- auto pairs
-  "https://github.com/VidocqH/auto-indent.nvim", -- auto indent
+  -- "https://github.com/windwp/nvim-autopairs",    -- auto pairs
+  -- "https://github.com/VidocqH/auto-indent.nvim", -- auto indent
+  "https://github.com/kylechui/nvim-surround",
   "https://github.com/numToStr/Comment.nvim",    -- gb/gc to (un)comment lines
   "https://github.com/folke/todo-comments.nvim",  -- highlight TODO/INFO/WARN comments
   "https://github.com/chentoast/marks.nvim",
 
 }, { confirm = false })
 
-require("nvim-autopairs").setup()
-require("auto-indent").setup()
 require("Comment").setup()
 require("todo-comments").setup()
+require("nvim-surround").setup({})
 
 vim.keymap.set("n", "<leader>/", function()
   require("Comment.api").toggle.linewise.count(vim.v.count > 0 and vim.v.count or 1)
@@ -454,6 +521,11 @@ vim.keymap.set(
 
 -- NOTE: AI
 vim.pack.add({ "https://github.com/folke/snacks.nvim"}, { confirm = false })
+require("snacks").setup({
+  input = {},
+  picker = {},
+  terminal = {},
+})
 vim.pack.add({ "https://github.com/NickvanDyke/opencode.nvim"}, { confirm = false })
 vim.g.opencode_opts = {
   -- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
